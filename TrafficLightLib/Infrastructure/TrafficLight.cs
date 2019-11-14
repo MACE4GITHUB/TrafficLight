@@ -8,6 +8,8 @@ namespace TrafficLightLib.Infrastructure
     public class TrafficLight : ITrafficLight
     {
         private CancellationTokenSource _cancellationTokenSource;
+        private Thread _thread;
+        private readonly Section _sectionOff = new Section(Status.Off, Status.Off, Status.Off, 10);
         private readonly Section[] _sections = new Section[] {
                 new Section(Status.On, Status.Off, Status.Off, 7000),
                 new Section(Status.On, Status.On, Status.Off, 2000),
@@ -19,8 +21,7 @@ namespace TrafficLightLib.Infrastructure
                 new Section(Status.Off, Status.Off, Status.Off, 500),
                 new Section(Status.Off, Status.Off, Status.On),
                 new Section(Status.Off, Status.On, Status.Off, 2000)
-            };
-        Thread _thread;
+            };        
 
         /// <summary>
         /// Create new traffic light
@@ -55,23 +56,23 @@ namespace TrafficLightLib.Infrastructure
                 TrafficLightWorking();
             }
             else
-            {                
+            {
                 _cancellationTokenSource.Cancel();
                 _thread.Join();
-                OnSectionChanged(new Section(Status.Off, Status.Off, Status.Off, 10));
+                OnSectionChanged(_sectionOff);
             }
         }
 
         private void TrafficLightWorking()
         {
-            _cancellationTokenSource = new CancellationTokenSource();            
+            _cancellationTokenSource = new CancellationTokenSource();
 
-            _thread = new Thread(Do);
+            _thread = new Thread(DoWork);
             object obj = new Obj(this, _cancellationTokenSource.Token);
-            _thread.Start(obj);            
+            _thread.Start(obj);
         }
 
-        private static void Do(object o)
+        private static void DoWork(object o)
         {
             var obj = (Obj)o;
             var sections = obj.TrafficLight._sections;
@@ -88,20 +89,22 @@ namespace TrafficLightLib.Infrastructure
                         hasRepeat = false;
                     }
                     while (!waitHandle.WaitOne(section.LightTime) && (hasRepeat));
-                    if (waitHandle.WaitOne(0)) return;                                        
+                    if (waitHandle.WaitOne(0)) return;
                 }
-            }            
+            }
         }
 
         private class Obj
-        {            
-            public TrafficLight TrafficLight { get; }
-            public CancellationToken CancellationToken { get; }
+        {
             public Obj(TrafficLight trafficLight, CancellationToken cancellationToken)
             {
                 TrafficLight = trafficLight;
                 CancellationToken = cancellationToken;
             }
+
+            public TrafficLight TrafficLight { get; }
+
+            public CancellationToken CancellationToken { get; }
         }
     }
 }
