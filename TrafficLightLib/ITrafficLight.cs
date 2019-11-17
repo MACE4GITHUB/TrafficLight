@@ -3,6 +3,9 @@ using TrafficLightLib.Events;
 
 namespace TrafficLightLib
 {
+    /// <summary>
+    /// Contains traffic light control interface
+    /// </summary>
     public interface ITrafficLight
     {
         /// <summary>
