@@ -1,3 +1,3 @@
 # TrafficLightLib #
 
-[Demo with UI](http://mace.sytes.net/tl/TrafficLight.mp4)
+[Demo with UI](https://youtu.be/J1QAdtEHjQc)
